@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#07050e" />
+  <title>黑塔空间站 · HERTA SPACE STATION</title>
+  <meta name="description" content="黑塔空间站非官方网站——收容奇物，也收容好奇心。四座舱段、无数人偶，以及一个被反复模拟的宇宙。" />
+
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+
+<!-- ================= 图标库 ================= -->
+<svg class="svg-defs" aria-hidden="true" focusable="false">
+  <symbol id="icon-logo" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="1" opacity=".4" />
+    <circle cx="24" cy="24" r="16" fill="none" stroke="currentColor" stroke-width=".6" opacity=".22" stroke-dasharray="2 3.4" />
+    <path d="M18 15v18M30 15v18M18 24h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+    <circle cx="24" cy="14" r="1.7" fill="currentColor" />
+    <circle cx="24" cy="34" r="1.7" fill="currentColor" />
+  </symbol>
+
+  <symbol id="icon-puppet" viewBox="0 0 64 64">
+    <line x1="32" y1="2" x2="32" y2="7" stroke="currentColor" stroke-width=".9" opacity=".4" />
+    <circle cx="32" cy="8" r="1.4" fill="currentColor" opacity=".55" />
+    <path d="M22.5 29c1-9 4.5-15 9.5-15s8.5 6 9.5 15z" fill="currentColor" opacity=".5" />
+    <ellipse cx="32" cy="29.5" rx="16" ry="4" fill="currentColor" />
+    <path d="M26 30h12v7.5a6 6 0 0 1-12 0z" fill="currentColor" opacity=".85" />
+    <path d="M29.5 37.5h5V42h-5z" fill="currentColor" opacity=".6" />
+    <path d="M18 56c1.5-8.5 6.5-12.5 14-12.5S44.5 47.5 46 56z" fill="currentColor" opacity=".35" />
+    <path d="M47 33l1 2.8 2.8 1-2.8 1-1 2.8-1-2.8-2.8-1 2.8-1z" fill="currentColor" opacity=".7" />
+  </symbol>
+</svg>
+
+<!-- ================= 启动画面 ================= -->
+<div class="boot" id="boot" aria-hidden="true">
+  <div class="boot-inner">
+    <svg class="boot-logo" viewBox="0 0 48 48"><use href="#icon-logo" /></svg>
+    <p class="boot-title">HERTA SPACE STATION</p>
+    <p class="boot-sub">正在接入空间站</p>
+    <div class="boot-bar"><i></i></div>
+    <ul class="boot-log">
+      <li><span>01</span>建立星轨链路<b>OK</b></li>
+      <li><span>02</span>校验访客权限<b>OK</b></li>
+      <li><span>03</span>加载人偶网络<b>OK</b></li>
+    </ul>
+    <p class="boot-skip">点击任意处跳过</p>
+  </div>
+</div>
+
+<!-- 全局装饰层 -->
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor-glow" id="cursor" aria-hidden="true"></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+<canvas class="starfield" id="stars" aria-hidden="true"></canvas>
+
+<!-- ================= 导航 ================= -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top" aria-label="黑塔空间站 首页">
+      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><use href="#icon-logo" /></svg>
+      <span class="brand-text">
+        <strong>黑塔空间站</strong>
+        <em>HERTA STATION</em>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="主导航">
+      <a href="#top"><i>00</i>序章</a>
+      <a href="#herta"><i>01</i>黑塔</a>
+      <a href="#zones"><i>02</i>舱段</a>
+      <a href="#universe"><i>03</i>模拟宇宙</a>
+      <a href="#puppets"><i>04</i>人偶</a>
+      <a href="#archive"><i>05</i>档案</a>
+    </nav>
+
+    <div class="nav-side">
+      <span class="nav-status"><i></i>SYSTEM ONLINE</span>
+      <a class="nav-cta" href="#archive">访客登记</a>
+      <button class="burger" id="burger" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- 移动端菜单 -->
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <div class="mobile-menu-inner">
+    <p class="mobile-eyebrow">INDEX / 目录</p>
+    <nav aria-label="移动端导航">
+      <a href="#top"><i>00</i>序章<span>PROLOGUE</span></a>
+      <a href="#herta"><i>01</i>黑塔<span>CHARACTER</span></a>
+      <a href="#zones"><i>02</i>舱段<span>SECTORS</span></a>
+      <a href="#universe"><i>03</i>模拟宇宙<span>SIMULATED UNIVERSE</span></a>
+      <a href="#puppets"><i>04</i>人偶<span>PUPPET NETWORK</span></a>
+      <a href="#archive"><i>05</i>档案<span>ARCHIVE</span></a>
+    </nav>
+    <div class="mobile-menu-foot">
+      <span>ORBIT · JARILO-VI</span>
+      <span>23.4° / 117.8°</span>
+    </div>
+  </div>
+</div>
+
+<!-- 右侧章节轨道 -->
+<aside class="side-rail" aria-label="章节快速跳转">
+  <a href="#top" data-section="top" aria-label="序章"><span>序章</span></a>
+  <a href="#herta" data-section="herta" aria-label="黑塔"><span>黑塔</span></a>
+  <a href="#zones" data-section="zones" aria-label="舱段"><span>舱段</span></a>
+  <a href="#universe" data-section="universe" aria-label="模拟宇宙"><span>模拟宇宙</span></a>
+  <a href="#puppets" data-section="puppets" aria-label="人偶"><span>人偶</span></a>
+  <a href="#archive" data-section="archive" aria-label="档案"><span>档案</span></a>
+</aside>
+
+<main>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="top">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-rings" aria-hidden="true">
+      <span class="ring ring-a"></span>
+      <span class="ring ring-b"></span>
+      <span class="ring ring-c"></span>
+      <span class="ring ring-d"></span>
+      <span class="ring-dot dot-a"></span>
+      <span class="ring-dot dot-b"></span>
+    </div>
+    <div class="hero-core" aria-hidden="true"></div>
+
+    <div class="container hero-inner">
+      <p class="eyebrow" data-reveal><span class="eyebrow-dot"></span>ORBITAL RESEARCH FACILITY · 轨道研究设施</p>
+
+      <h1 class="hero-title" data-reveal data-delay="1">
+        <span class="ht-fill">黑塔</span><span class="ht-line">空间站</span>
+      </h1>
+
+      <p class="hero-en" data-reveal data-delay="2">
+        <span></span>HERTA SPACE STATION<span></span>
+      </p>
+
+      <p class="hero-desc" data-reveal data-delay="3">
+        「这里收容奇物，也收容好奇心。」四座舱段、无数人偶、一个被反复模拟的宇宙——<br class="pc-only" />
+        欢迎登入黑塔空间站，访客。请尽量不要让她觉得无聊。
+      </p>
+
+      <div class="hero-actions" data-reveal data-delay="4">
+        <a class="btn btn-primary" href="#zones">登入空间站<span class="btn-icon">→</span></a>
+        <a class="btn btn-ghost" href="#herta">认识黑塔</a>
+      </div>
+    </div>
+
+    <div class="container hero-stats" data-reveal data-delay="5">
+      <div class="stat">
+        <span class="stat-num" data-count="83">83</span>
+        <span class="stat-label">天才俱乐部席位</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" data-count="4" data-pad="2">04</span>
+        <span class="stat-label">公开舱段</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num stat-inf">∞</span>
+        <span class="stat-label">在站人偶</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" data-count="1" data-pad="2">01</span>
+        <span class="stat-label">模拟宇宙</span>
+      </div>
+    </div>
+
+    <a class="scroll-cue" href="#herta" aria-label="向下滚动">
+      <span>SCROLL</span>
+      <i></i>
+    </a>
+  </section>
+
+  <!-- ================= 滚动信息条 ================= -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-label">STATION FEED</div>
+    <div class="ticker-viewport">
+      <div class="ticker-track">
+        <div class="ticker-group">
+          <span class="ticker-item"><i>✦</i>模拟宇宙 · 第十二次迭代已启动</span>
+          <span class="ticker-item"><i>✦</i>收容舱段 · 奇物 #214 出现异常共振</span>
+          <span class="ticker-item"><i>✦</i>人偶自检 · 今日完成 37 次</span>
+          <span class="ticker-item"><i>✦</i>主控舱段 · 星轨航图更新完毕</span>
+          <span class="ticker-item"><i>✦</i>禁闭舱段 · 未经许可禁止进入</span>
+          <span class="ticker-item"><i>✦</i>访客提示 · 请不要和「黑塔」争论</span>
+        </div>
+        <div class="ticker-group">
+          <span class="ticker-item"><i>✦</i>模拟宇宙 · 第十二次迭代已启动</span>
+          <span class="ticker-item"><i>✦</i>收容舱段 · 奇物 #214 出现异常共振</span>
+          <span class="ticker-item"><i>✦</i>人偶自检 · 今日完成 37 次</span>
+          <span class="ticker-item"><i>✦</i>主控舱段 · 星轨航图更新完毕</span>
+          <span class="ticker-item"><i>✦</i>禁闭舱段 · 未经许可禁止进入</span>
+          <span class="ticker-item"><i>✦</i>访客提示 · 请不要和「黑塔」争论</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 01 黑塔 ================= -->
+  <section class="section character" id="herta">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="section-index"><span>01</span> / CHARACTER</p>
+        <h2 class="section-title">天才俱乐部 <em>#83</em></h2>
+        <p class="section-sub">她把自己复制了很多份，只为省下一点时间。</p>
+      </header>
+
+      <div class="character-grid">
+        <figure class="portrait" data-reveal>
+          <div class="portrait-frame" id="portrait" title="点一下人偶">
+            <span class="frame-corner tl"></span>
+            <span class="frame-corner tr"></span>
+            <span class="frame-corner bl"></span>
+            <span class="frame-corner br"></span>
+            <span class="portrait-scan" aria-hidden="true"></span>
+
+            <div class="portrait-hud">
+              <span class="hud-left"><i></i>PUPPET / NO.083</span>
+              <span class="hud-right">REC</span>
+            </div>
+
+            <svg class="portrait-svg" viewBox="0 0 480 700" role="img" aria-labelledby="portraitTitle portraitDesc">
+              <title id="portraitTitle">黑塔人偶剪影</title>
+              <desc id="portraitDesc">一个戴着宽檐帽的人偶剪影，身体内部是一片星空，帽檐由提线牵引。</desc>
+              <defs>
+                <linearGradient id="galaxyGrad" gradientUnits="userSpaceOnUse" x1="150" y1="60" x2="330" y2="700">
+                  <stop offset="0" stop-color="#f0e6ff" />
+                  <stop offset=".28" stop-color="#ceb4ff" />
+                  <stop offset=".58" stop-color="#9569f7" />
+                  <stop offset=".82" stop-color="#522da8" />
+                  <stop offset="1" stop-color="#2a1657" />
+                </linearGradient>
+                <linearGradient id="dressShade" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="700">
+                  <stop offset="0" stop-color="#08050f" stop-opacity="0" />
+                  <stop offset=".72" stop-color="#08050f" stop-opacity=".55" />
+                  <stop offset="1" stop-color="#08050f" stop-opacity=".95" />
+                </linearGradient>
+                <pattern id="starDust" width="96" height="96" patternUnits="userSpaceOnUse">
+                  <circle cx="10" cy="14" r="1.1" fill="#fff" opacity=".75" />
+                  <circle cx="48" cy="8" r=".8" fill="#fff" opacity=".5" />
+                  <circle cx="78" cy="30" r="1.4" fill="#fff" opacity=".65" />
+                  <circle cx="26" cy="52" r=".7" fill="#fff" opacity=".4" />
+                  <circle cx="62" cy="66" r="1" fill="#fff" opacity=".55" />
+                  <circle cx="90" cy="84" r=".8" fill="#fff" opacity=".45" />
+                  <circle cx="8" cy="82" r="1.2" fill="#fff" opacity=".5" />
+                  <circle cx="40" cy="90" r=".6" fill="#fff" opacity=".35" />
+                </pattern>
+                <linearGradient id="hairFade" gradientUnits="userSpaceOnUse" x1="0" y1="280" x2="0" y2="500">
+                  <stop offset="0" stop-color="#1a0f33" stop-opacity=".62" />
+                  <stop offset=".68" stop-color="#1a0f33" stop-opacity=".34" />
+                  <stop offset="1" stop-color="#1a0f33" stop-opacity="0" />
+                </linearGradient>
+                <g id="figShapes">
+                  <path d="M202 268c-24 46-32 118-28 178 2 26 14 38 26 24 8-38 10-94 18-146z" />
+                  <path d="M278 268c24 46 32 118 28 178-2 26-14 38-26 24-8-38-10-94-18-146z" />
+                  <path d="M224 334h32l4 40h-40z" />
+                  <path d="M240 370c-32 0-58 12-76 30-18 18-26 50-30 88l-10 162h232l-10-162c-4-38-12-70-30-88-18-18-44-30-76-30z" />
+                  <path d="M240 256c24 0 39 21 39 44 0 25-16 44-39 44s-39-19-39-44c0-23 15-44 39-44z" />
+                  <g transform="rotate(-4 240 258)">
+                    <path d="M160 258 L202 132 C212 104 224 86 238 80 C248 84 256 96 264 116 L320 258 Z" />
+                    <ellipse cx="240" cy="258" rx="140" ry="22" />
+                  </g>
+                </g>
+                <mask id="figMask">
+                  <use href="#figShapes" fill="#ffffff" />
+                </mask>
+                <filter id="portraitGlow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#8b5cf6" flood-opacity=".45" />
+                </filter>
+              </defs>
+
+              <!-- 提线 -->
+              <g class="puppet-strings" stroke="#e8d8b0" stroke-width="1" opacity=".32" fill="none">
+                <line x1="150" y1="32" x2="102" y2="250" stroke-dasharray="2 6" />
+                <line x1="250" y1="26" x2="238" y2="80" stroke-dasharray="2 6" />
+                <line x1="330" y1="32" x2="378" y2="250" stroke-dasharray="2 6" />
+              </g>
+
+              <!-- 剪影 -->
+              <g class="puppet-figure" filter="url(#portraitGlow)">
+                <g mask="url(#figMask)">
+                  <rect x="60" y="40" width="360" height="660" fill="url(#galaxyGrad)" />
+                  <rect x="60" y="40" width="360" height="660" fill="url(#starDust)" opacity=".9" />
+                  <circle cx="214" cy="320" r="1.8" fill="#fff" opacity=".9" />
+                  <circle cx="272" cy="430" r="1.5" fill="#fff" opacity=".8" />
+                  <circle cx="222" cy="520" r="2.4" fill="#fff" opacity=".5" />
+                  <circle cx="292" cy="556" r="1.3" fill="#fff" opacity=".65" />
+                  <circle cx="190" cy="590" r="1.5" fill="#fff" opacity=".45" />
+                  <circle cx="308" cy="610" r="1.1" fill="#fff" opacity=".5" />
+                  <path d="M262 214l2 6.6 6.6 2-6.6 2-2 6.6-2-6.6-6.6-2 6.6-2z" fill="#fff" opacity=".85" />
+                  <path d="M212 468l1.5 5 5 1.5-5 1.5-1.5 5-1.5-5-5-1.5 5-1.5z" fill="#fff" opacity=".85" />
+                  <rect x="60" y="40" width="360" height="660" fill="url(#dressShade)" />
+                </g>
+
+                <!-- 帽檐投影 -->
+                <ellipse cx="240" cy="279" rx="36" ry="7" fill="#150a2a" opacity=".3" />
+                <!-- 领口阴影 -->
+                <ellipse cx="240" cy="384" rx="30" ry="10" fill="#150a2a" opacity=".28" />
+                <path d="M210 388q30 18 60 0" fill="none" stroke="#1a0f33" stroke-width="1.6" opacity=".38" />
+
+                <!-- 侧发 -->
+                <g fill="url(#hairFade)">
+                  <path d="M205 284c-5 34-7 74-4 108 1 8 5 10 7 2 3-34 3-76 1-108z" />
+                  <path d="M275 284c5 34 7 74 4 108-1 8-5 10-7 2-3-34-3-76-1-108z" />
+                </g>
+                <!-- 发饰 -->
+                <path d="M206 330l1.5 4.5 4.5 1.5-4.5 1.5-1.5 4.5-1.5-4.5-4.5-1.5 4.5-1.5z" fill="#e8d8b0" opacity=".85" />
+
+                <!-- 五官 -->
+                <g fill="none" stroke="#241441" stroke-linecap="round">
+                  <path d="M221 308q6.5 4.5 13 0" stroke-width="2" opacity=".9" />
+                  <path d="M246 308q6.5 4.5 13 0" stroke-width="2" opacity=".9" />
+                  <path d="M236 330q4 2.5 8 0" stroke-width="1.4" opacity=".55" />
+                </g>
+
+                <!-- 颈环 -->
+                <rect x="226" y="350" width="28" height="6" rx="3" fill="#150a2a" opacity=".55" />
+                <path d="M240 353l1.4 4.2 4.2 1.4-4.2 1.4-1.4 4.2-1.4-4.2-4.2-1.4 4.2-1.4z" fill="#e8d8b0" opacity=".8" />
+
+                <!-- 帽带 -->
+                <g transform="rotate(-4 240 258)">
+                  <path d="M174 216q66 20 132 0l4 16q-68 20-140 0z" fill="#e8d8b0" opacity=".82" />
+                  <ellipse cx="240" cy="258" rx="140" ry="22" fill="none" stroke="#efe4ff" stroke-width=".9" opacity=".32" />
+                  <ellipse cx="240" cy="258" rx="139" ry="21.4" fill="none" stroke="#150a2a" stroke-width="1.4" opacity=".16" />
+                </g>
+
+                <!-- 吊坠 -->
+                <g>
+                  <line x1="364" y1="278" x2="364" y2="306" stroke="#e8d8b0" stroke-width="1" opacity=".55" />
+                  <path d="M364 308l2.4 7.6 7.6 2.4-7.6 2.4-2.4 7.6-2.4-7.6-7.6-2.4 7.6-2.4z" fill="#e8d8b0" opacity=".9" />
+                </g>
+              </g>
+
+              <!-- 提线杆 -->
+              <g>
+                <rect x="146" y="24" width="188" height="6" rx="3" fill="#e8d8b0" opacity=".5" />
+                <circle cx="146" cy="27" r="4.5" fill="#e8d8b0" opacity=".75" />
+                <circle cx="334" cy="27" r="4.5" fill="#e8d8b0" opacity=".75" />
+              </g>
+
+              <g fill="#cfbcff" opacity=".5">
+                <path d="M96 148l2 6.6 6.6 2-6.6 2-2 6.6-2-6.6-6.6-2 6.6-2z" />
+                <path d="M388 122l1.5 5 5 1.5-5 1.5-1.5 5-1.5-5-5-1.5 5-1.5z" />
+                <path d="M400 392l1.5 5 5 1.5-5 1.5-1.5 5-1.5-5-5-1.5 5-1.5z" />
+                <path d="M78 420l1.5 5 5 1.5-5 1.5-1.5 5-1.5-5-5-1.5 5-1.5z" />
+              </g>
+            </svg>
+
+            <div class="portrait-foot">
+              <span>JOINT SYSTEM <b>ACTIVE</b></span>
+              <span>45.2 Hz</span>
+            </div>
+          </div>
+          <figcaption>
+            <span>人偶档案 / 影像资料 083-A</span>
+            <span class="fig-hint">点一下，听听她想说什么</span>
+          </figcaption>
+        </figure>
+
+        <div class="character-info" data-reveal data-delay="2">
+          <p class="char-kicker">THE MASTER OF THE STATION</p>
+          <h3 class="char-name">黑塔<span>HERTA</span></h3>
+
+          <ul class="char-tags">
+            <li>空间站主人</li>
+            <li>天才俱乐部 #83</li>
+            <li>模拟宇宙</li>
+            <li>人偶网络</li>
+            <li>冰 · 智识</li>
+          </ul>
+
+          <blockquote class="char-quote">
+            「别误会，我不是在等你。<br />是这座空间站，刚好需要一个访客。」
+          </blockquote>
+
+          <p class="char-desc">
+            第一次见到黑塔，你大概会以为她只是个脾气不太好的小女孩。但请记住——你面前的，是她的人偶。
+          </p>
+          <p class="char-desc">
+            真正的黑塔鲜少露面。她把好奇心拆解成实验，把实验拆解成宇宙，再把宇宙塞进一台机器里反复运行。整座空间站都是她的玩具箱，包括那些在走廊里走来走去、和你说话的「她」。
+          </p>
+          <p class="char-desc char-desc-last">
+            她讨厌无聊，胜过讨厌失败。所以，别让她等太久。
+          </p>
+
+          <div class="char-meters">
+            <div class="meter"><span class="meter-label">智力</span><span class="meter-track"><i style="--v:100%"></i></span><span class="meter-val">100</span></div>
+            <div class="meter"><span class="meter-label">好奇心</span><span class="meter-track"><i style="--v:98%"></i></span><span class="meter-val">98</span></div>
+            <div class="meter"><span class="meter-label">耐心</span><span class="meter-track"><i style="--v:12%"></i></span><span class="meter-val">12</span></div>
+            <div class="meter"><span class="meter-label">任性</span><span class="meter-track"><i style="--v:87%"></i></span><span class="meter-val">87</span></div>
+          </div>
+
+          <dl class="char-file">
+            <div><dt>身份</dt><dd>人偶（远程操控）</dd></div>
+            <div><dt>所属</dt><dd>空间站「黑塔」</dd></div>
+            <div><dt>命途</dt><dd>智识</dd></div>
+            <div><dt>属性</dt><dd>冰</dd></div>
+            <div><dt>编号</dt><dd>天才俱乐部 #83</dd></div>
+            <div><dt>危险度</dt><dd>低（前提：你不无聊）</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 02 舱段 ================= -->
+  <section class="section zones" id="zones">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="section-index"><span>02</span> / SECTORS</p>
+        <h2 class="section-title">四座舱段</h2>
+        <p class="section-sub">从主控到禁闭，每一扇门后都写着「黑塔」的名字。</p>
+      </header>
+
+      <div class="zones-grid">
+        <div class="station-map" data-reveal>
+          <div class="map-head">
+            <span>STATION SCHEMATIC</span>
+            <span>TOP VIEW / 1:2400</span>
+          </div>
+
+          <svg class="map-svg" viewBox="0 0 520 520" role="img" aria-label="黑塔空间站舱段示意图">
+            <g class="map-rings" fill="none">
+              <circle cx="260" cy="260" r="236" stroke="rgba(196,167,255,.12)" stroke-dasharray="1 7" />
+              <circle cx="260" cy="260" r="196" stroke="rgba(196,167,255,.07)" />
+              <circle cx="260" cy="260" r="150" stroke="rgba(196,167,255,.06)" stroke-dasharray="2 10" />
+            </g>
+
+            <g class="map-links" stroke="rgba(196,167,255,.22)" stroke-width="1">
+              <line x1="260" y1="214" x2="260" y2="134" />
+              <line x1="306" y1="260" x2="376" y2="260" />
+              <line x1="260" y1="306" x2="260" y2="386" />
+              <line x1="214" y1="260" x2="144" y2="260" />
+            </g>
+
+            <g class="map-core">
+              <circle class="core-pulse" cx="260" cy="260" r="46" />
+              <circle class="core-ring" cx="260" cy="260" r="46" />
+              <circle class="core-dashed" cx="260" cy="260" r="31" />
+              <text class="core-name" x="260" y="257">HERTA</text>
+              <text class="core-sub" x="260" y="270">CORE</text>
+            </g>
+
+            <g class="map-node" data-zone="command" tabindex="0" role="button" aria-label="主控舱段">
+              <circle class="node-halo" cx="260" cy="100" r="46" />
+              <circle class="node-ring" cx="260" cy="100" r="34" />
+              <circle class="node-dot" cx="260" cy="100" r="3" />
+              <text class="node-no" x="260" y="95">01</text>
+              <text class="node-label" x="260" y="44" text-anchor="middle">主控舱段</text>
+              <text class="node-en" x="260" y="60" text-anchor="middle">COMMAND</text>
+            </g>
+
+            <g class="map-node" data-zone="storage" tabindex="0" role="button" aria-label="收容舱段">
+              <circle class="node-halo" cx="410" cy="260" r="46" />
+              <circle class="node-ring" cx="410" cy="260" r="34" />
+              <circle class="node-dot" cx="410" cy="260" r="3" />
+              <text class="node-no" x="410" y="255">02</text>
+              <text class="node-label" x="454" y="254" text-anchor="start">收容舱段</text>
+              <text class="node-en" x="454" y="270" text-anchor="start">STORAGE</text>
+            </g>
+
+            <g class="map-node" data-zone="support" tabindex="0" role="button" aria-label="支援舱段">
+              <circle class="node-halo" cx="260" cy="420" r="46" />
+              <circle class="node-ring" cx="260" cy="420" r="34" />
+              <circle class="node-dot" cx="260" cy="420" r="3" />
+              <text class="node-no" x="260" y="415">03</text>
+              <text class="node-label" x="260" y="484" text-anchor="middle">支援舱段</text>
+              <text class="node-en" x="260" y="500" text-anchor="middle">SUPPORT</text>
+            </g>
+
+            <g class="map-node" data-zone="seclusion" tabindex="0" role="button" aria-label="禁闭舱段">
+              <circle class="node-halo" cx="110" cy="260" r="46" />
+              <circle class="node-ring" cx="110" cy="260" r="34" />
+              <circle class="node-dot" cx="110" cy="260" r="3" />
+              <text class="node-no" x="110" y="255">04</text>
+              <text class="node-label" x="66" y="254" text-anchor="end">禁闭舱段</text>
+              <text class="node-en" x="66" y="270" text-anchor="end">SECLUSION</text>
+            </g>
+          </svg>
+
+          <p class="map-hint">点击节点或右侧条目切换舱段</p>
+        </div>
+
+        <div class="zone-list" id="zoneList" data-reveal data-delay="2">
+
+          <article class="zone is-active" data-zone="command">
+            <button class="zone-head" type="button" aria-expanded="true">
+              <span class="zone-no">01</span>
+              <span class="zone-name">主控舱段<em>COMMAND ZONE</em></span>
+              <span class="zone-icon">+</span>
+            </button>
+            <div class="zone-body">
+              <div class="zone-body-inner">
+                <p>空间站的心脏。星轨航图在这里绘制，所有舱段的指令从这里发出。舷窗外，雅利洛-VI 正缓慢地转过来，像一颗被遗忘的雪球。</p>
+                <ul class="zone-tags">
+                  <li>星轨航图</li><li>调度中枢</li><li>观景舷窗</li>
+                </ul>
+                <div class="zone-meta">
+                  <span><b>常驻</b>12 人</span>
+                  <span><b>开放</b>全天</span>
+                  <span><b>权限</b>访客可进入</span>
+                </div>
+                <div class="zone-danger">
+                  <span class="danger-label">危险等级</span>
+                  <span class="danger-dots"><i class="on"></i><i></i><i></i><i></i><i></i></span>
+                  <span class="danger-val">01 / 05</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="zone" data-zone="storage">
+            <button class="zone-head" type="button" aria-expanded="false">
+              <span class="zone-no">02</span>
+              <span class="zone-name">收容舱段<em>STORAGE ZONE</em></span>
+              <span class="zone-icon">+</span>
+            </button>
+            <div class="zone-body">
+              <div class="zone-body-inner">
+                <p>奇物们的集体宿舍。编号、封存、观察、记录——有些东西最好永远别打开，而黑塔恰好对「别打开」这四个字过敏。</p>
+                <ul class="zone-tags">
+                  <li>奇物收容</li><li>异常监测</li><li>编号档案</li>
+                </ul>
+                <div class="zone-meta">
+                  <span><b>常驻</b>04 人</span>
+                  <span><b>开放</b>需 B 级权限</span>
+                  <span><b>权限</b>限研究员</span>
+                </div>
+                <div class="zone-danger danger-high">
+                  <span class="danger-label">危险等级</span>
+                  <span class="danger-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span>
+                  <span class="danger-val">03 / 05</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="zone" data-zone="support">
+            <button class="zone-head" type="button" aria-expanded="false">
+              <span class="zone-no">03</span>
+              <span class="zone-name">支援舱段<em>SUPPORT ZONE</em></span>
+              <span class="zone-icon">+</span>
+            </button>
+            <div class="zone-body">
+              <div class="zone-body-inner">
+                <p>医疗、维修与人偶维护。走廊尽头永远亮着灯，空气里有消毒水和咖啡的味道——据说那是整座空间站最像「家」的地方。</p>
+                <ul class="zone-tags">
+                  <li>医疗室</li><li>人偶工坊</li><li>船员休息区</li>
+                </ul>
+                <div class="zone-meta">
+                  <span><b>常驻</b>21 人</span>
+                  <span><b>开放</b>全天</span>
+                  <span><b>权限</b>访客可进入</span>
+                </div>
+                <div class="zone-danger">
+                  <span class="danger-label">危险等级</span>
+                  <span class="danger-dots"><i class="on"></i><i></i><i></i><i></i><i></i></span>
+                  <span class="danger-val">01 / 05</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="zone" data-zone="seclusion">
+            <button class="zone-head" type="button" aria-expanded="false">
+              <span class="zone-no">04</span>
+              <span class="zone-name">禁闭舱段<em>SECLUSION ZONE</em></span>
+              <span class="zone-icon">+</span>
+            </button>
+            <div class="zone-body">
+              <div class="zone-body-inner">
+                <p>官方说法是「实验区」。实际发生了什么，只有黑塔和她的记录知道。门上的封条换过很多次，最近一次是她亲手贴的。</p>
+                <ul class="zone-tags">
+                  <li>高危实验</li><li>权限限制</li><li>请勿入内</li>
+                </ul>
+                <div class="zone-meta">
+                  <span><b>常驻</b>00 人</span>
+                  <span><b>开放</b>禁止进入</span>
+                  <span><b>权限</b>仅站主</span>
+                </div>
+                <div class="zone-danger danger-high">
+                  <span class="danger-label">危险等级</span>
+                  <span class="danger-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>
+                  <span class="danger-val">05 / 05</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 03 模拟宇宙 ================= -->
+  <section class="section universe" id="universe">
+    <div class="container">
+      <div class="universe-panel" data-reveal>
+        <div class="universe-grid-bg" aria-hidden="true"></div>
+        <div class="universe-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+
+        <div class="universe-copy">
+          <p class="section-index"><span>03</span> / SIMULATED UNIVERSE</p>
+          <h2 class="section-title">把宇宙<br />再跑一遍</h2>
+          <p class="universe-desc">
+            模拟宇宙是黑塔最得意的玩具：把命途、偶然与必然压缩进一台机器，然后一遍又一遍地运行。每一次模拟都会诞生新的祝福、新的奇物，以及新的、她早就知道的结果。
+          </p>
+          <p class="universe-desc universe-desc-small">现在，轮到你了。</p>
+
+          <ul class="universe-stats">
+            <li><strong>∞</strong><span>模拟次数</span></li>
+            <li><strong>12</strong><span>已解明命途</span></li>
+            <li><strong>214</strong><span>收录奇物</span></li>
+          </ul>
+
+          <button class="btn btn-primary" id="drawBlessing" type="button">
+            抽取今日祝福<span class="btn-icon">✦</span>
+          </button>
+          <p class="universe-count">本次会话已模拟 <b id="simCount">0</b> 次</p>
+        </div>
+
+        <div class="blessing-wrap">
+          <div class="blessing" id="blessingCard">
+            <div class="blessing-sheen" aria-hidden="true"></div>
+            <div class="blessing-top">
+              <span class="blessing-path" id="blessingPath">智识</span>
+              <span class="blessing-rarity" id="blessingRarity">★★★</span>
+            </div>
+            <div class="blessing-mark" aria-hidden="true">✦</div>
+            <h3 class="blessing-name" id="blessingName">答案在问题之前</h3>
+            <p class="blessing-desc" id="blessingDesc">终结技造成的伤害提升 20%；施放终结技后，下一次攻击额外造成 1 次附加伤害。</p>
+            <div class="blessing-foot">
+              <span>BLESSING / 祝福</span>
+              <span id="blessingId">#0417</span>
+            </div>
+          </div>
+          <p class="blessing-note">每次抽取均为独立模拟结果，与任何官方设定无关。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 人偶 ================= -->
+  <section class="section puppets" id="puppets">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="section-index"><span>04</span> / PUPPET NETWORK</p>
+        <h2 class="section-title">人偶网络</h2>
+        <p class="section-sub">她们都叫黑塔，也都不完全是她。点一个，听听她们在说什么。</p>
+      </header>
+
+      <div class="puppet-grid" data-reveal>
+        <button class="puppet" type="button" style="--c:#c9aeff" data-name="向导" data-quote="向左，然后一直向左。你会找到的。">
+          <span class="puppet-no">01</span>
+          <span class="puppet-figure"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#icon-puppet" /></svg></span>
+          <span class="puppet-name">向导</span>
+          <span class="puppet-role">GUIDE</span>
+        </button>
+        <button class="puppet" type="button" style="--c:#e8d8b0" data-name="记录员" data-quote="已记录。包括你刚才那句废话。">
+          <span class="puppet-no">02</span>
+          <span class="puppet-figure"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#icon-puppet" /></svg></span>
+          <span class="puppet-name">记录员</span>
+          <span class="puppet-role">RECORDER</span>
+        </button>
+        <button class="puppet" type="button" style="--c:#9be7ff" data-name="门卫" data-quote="通行证。没有？那就站在这儿。">
+          <span class="puppet-no">03</span>
+          <span class="puppet-figure"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#icon-puppet" /></svg></span>
+          <span class="puppet-name">门卫</span>
+          <span class="puppet-role">GUARD</span>
+        </button>
+        <button class="puppet" type="button" style="--c:#8b5cf6" data-name="维修工" data-quote="别碰那根线。好吧，你碰了。">
+          <span class="puppet-no">04</span>
+          <span class="puppet-figure"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#icon-puppet" /></svg></span>
+          <span class="puppet-name">维修工</span>
+          <span class="puppet-role">ENGINEER</span>
+        </button>
+        <button class="puppet" type="button" style="--c:#e6a6ff" data-name="咖啡师" data-quote="三份浓缩，不加糖。她只喝这个。">
+          <span class="puppet-no">05</span>
+          <span class="puppet-figure"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#icon-puppet" /></svg></span>
+          <span class="puppet-name">咖啡师</span>
+          <span class="puppet-role">BARISTA</span>
+        </button>
+        <button class="puppet" type="button" style="--c:#a7ffd8" data-name="实验体" data-quote="编号 06，自愿参加。大概吧。">
+          <span class="puppet-no">06</span>
+          <span class="puppet-figure"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#icon-puppet" /></svg></span>
+          <span class="puppet-name">实验体</span>
+          <span class="puppet-role">SUBJECT</span>
+        </button>
+        <button class="puppet" type="button" style="--c:#ffd6a6" data-name="信使" data-quote="有一封给未来的你的信。要拆吗？">
+          <span class="puppet-no">07</span>
+          <span class="puppet-figure"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#icon-puppet" /></svg></span>
+          <span class="puppet-name">信使</span>
+          <span class="puppet-role">COURIER</span>
+        </button>
+        <button class="puppet" type="button" style="--c:#b8b8ff" data-name="替补" data-quote="我只是在等一个上场的机会。">
+          <span class="puppet-no">08</span>
+          <span class="puppet-figure"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#icon-puppet" /></svg></span>
+          <span class="puppet-name">替补</span>
+          <span class="puppet-role">SPARE</span>
+        </button>
+      </div>
+
+      <div class="puppet-foot" data-reveal>
+        <span>已登记人偶 <b>08</b> / 08</span>
+        <span>互动记录 <b id="puppetTaps">000</b> 次</span>
+        <span class="puppet-foot-note">维护由本人偶自行完成</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 05 档案 ================= -->
+  <section class="section archive" id="archive">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="section-index"><span>05</span> / ARCHIVE</p>
+        <h2 class="section-title">访客档案</h2>
+        <p class="section-sub">终端仍在使用中。你可以留下一条记录，或者只是看看。</p>
+      </header>
+
+      <div class="terminal" id="terminal" data-reveal>
+        <div class="term-bar">
+          <span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="term-title">visitor@herta-station: ~/archive</span>
+          <span class="term-status"><i></i>CONNECTED</span>
+        </div>
+        <div class="term-body" id="termBody">
+          <div class="term-out" id="termOut" role="log" aria-label="终端输出"></div>
+          <form class="term-form" id="termForm" autocomplete="off">
+            <label class="sr-only" for="termInput">输入终端指令</label>
+            <span class="term-prompt">visitor@hss:~$</span>
+            <input id="termInput" type="text" spellcheck="false" placeholder="输入 help 查看可用指令" />
+          </form>
+        </div>
+      </div>
+
+      <p class="term-hint">
+        试试 <code>help</code>、<code>herta</code>、<code>zones</code>、<code>puppet</code>、<code>sim</code>，或者直接输入 <code>黑塔</code>。
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= 页脚 ================= -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <svg class="footer-mark" viewBox="0 0 48 48" aria-hidden="true"><use href="#icon-logo" /></svg>
+        <p class="footer-name">黑塔空间站</p>
+        <p class="footer-en">HERTA SPACE STATION</p>
+        <p class="footer-line">收容奇物，也收容好奇心。</p>
+      </div>
+
+      <nav class="footer-cols" aria-label="页脚导航">
+        <div>
+          <h4>舱段</h4>
+          <a href="#zones">主控舱段</a>
+          <a href="#zones">收容舱段</a>
+          <a href="#zones">支援舱段</a>
+          <a href="#zones">禁闭舱段</a>
+        </div>
+        <div>
+          <h4>档案</h4>
+          <a href="#herta">黑塔</a>
+          <a href="#universe">模拟宇宙</a>
+          <a href="#puppets">人偶网络</a>
+          <a href="#archive">访客终端</a>
+        </div>
+        <div>
+          <h4>站务</h4>
+          <a href="#archive">访客须知</a>
+          <a href="#archive">安全条例</a>
+          <a href="#archive">联络方式</a>
+          <a href="#top">返回顶部</a>
+        </div>
+      </nav>
+    </div>
+
+    <div class="footer-word" aria-hidden="true">HERTA</div>
+
+    <div class="footer-bottom">
+      <p>© 2026 HERTA SPACE STATION · 非官方同人作品，角色与世界观版权归 miHoYo 所有。</p>
+      <p class="footer-coord">ORBIT · JARILO-VI　23.4° / 117.8°</p>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="返回顶部">↑</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
